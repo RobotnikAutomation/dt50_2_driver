@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <launch>
 	<arg name="port" default="/dev/ttyUSB0"/>
-	<arg name="reads_per_request" default="5"/>
+	<arg name="reads_per_request" default="10"/>
 	<node type="dt50_2_driver_node.py" name="dt50_2_driver" pkg="dt50_2_driver" output="screen" respawn="true" respawn_delay="10">
 		<param name="port" value="$(arg port)"/>
 		<param name="reads_per_request" value="$(arg reads_per_request)"/>
