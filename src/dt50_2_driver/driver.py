@@ -77,10 +77,10 @@ class DT502Driver(RComponent):
     
     def shutdown(self):
         # Turn off laser
-        rospy.loginfo("Turns off laser")
+        rospy.loginfo("%s::shutdown: Turns off laser" % self._node_name)
         self.write(self.turnOffLaser_cmd)
 
-        rospy.loginfo("Sends shutdown communication message")
+        rospy.loginfo("%s::shutdown: Sends shutdown communication message" % self._node_name)
         self.write(self.shutdown_cmd)
         rospy.sleep(1.0)
 
@@ -90,7 +90,7 @@ class DT502Driver(RComponent):
     
     def write(self, data):
         bytes_written = self.serial_device.write(data)
-        rospy.loginfo("bytes_written: %i", bytes_written)
+        #rospy.loginfo("%s::write: bytes_written: %i", self._node_name, bytes_written)
         self.serial_device.flush()
         return bytes_written
     
@@ -107,11 +107,11 @@ class DT502Driver(RComponent):
 
     def initialize_communication(self):
         self.write(self.startFirstCommunication_cmd)
-        rospy.loginfo("First communication message sent")
+        rospy.loginfo("%s::initialize_communication: First communication message sent", self._node_name)
         rospy.sleep(0.5)
 
 
-        rospy.loginfo("Sends second communication message")
+        rospy.loginfo("%s::initialize_communication: Sends second communication message", self._node_name)
         self.write(self.startSecondCommunication_cmd)
         rospy.sleep(0.5)
 
@@ -130,19 +130,19 @@ class DT502Driver(RComponent):
         if msg.readings > 0:
             num_reads = msg.readings
         measurements =[]
-        rospy.loginfo("Reads distance from laser")
+        rospy.loginfo("%s::read_distance_service_cb: Reads distance from laser", self._node_name)
         for x in range(0,num_reads):
             self.write(self.requestMeasure_cmd)
             distance = self.read()
             #print(distance)
             distance=distance[12:16]
             measurements.append(float(int(distance,16))/10.0)
-            rospy.loginfo("Distance read (in 1/10 mm): %.2f", measurements[x])
+            rospy.loginfo("%s::read_distance_service_cb: Distance read (in 1/10 mm): %.2f", self._node_name, measurements[x])
 
         average_distance = statistics.mean(measurements)
         std_dev = statistics.stdev(measurements)
-        print("Mean: %.4f" % average_distance)
-        print("Standard deviation: %.4f" % std_dev)
+        rospy.loginfo("%s::read_distance_service_cb: Mean -> %.4f", self._node_name, average_distance)
+        rospy.loginfo("%s::read_distance_service_cb: Standard deviation -> %.4f", self._node_name, std_dev)
         
         self.turn_off_laser_cb(TriggerRequest())
 
@@ -156,7 +156,7 @@ class DT502Driver(RComponent):
     def shutdown_communication_cb(self, msg):
         self.serial_device.flush()
 
-        rospy.loginfo("Sends shutdown communication message")
+        rospy.loginfo("%s::shutdown_communication_cb: Sends shutdown communication message", self._node_name)
         self.write(self.shutdown_cmd)
         rospy.sleep(1.0)
 
@@ -177,7 +177,7 @@ class DT502Driver(RComponent):
     def start_communication_cb(self, msg):
         self.serial_device.flush()
 
-        rospy.loginfo("Sends shutdown communication message")
+        rospy.loginfo("%s::start_communication_cb: Sends shutdown communication message", self._node_name)
         self.write(self.startFirstCommunication_cmd)
         rospy.sleep(0.5)
 
