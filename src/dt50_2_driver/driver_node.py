@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import rospy
-from dt50_2_driver import DT502Driver
+from dt50_2_driver.driver import DT502Driver
 
 
 def main():

@@ -1,17 +1,14 @@
 #!/usr/bin/env python3
+from urllib import response
+import rospy
+from std_srvs.srv import Trigger, TriggerResponse, TriggerRequest
 
-from itertools import accumulate
-from logging import shutdown
 import serial
 from serial import SerialException
 import statistics
 from rcomponent.rcomponent import RComponent
 
-import rospy
-
-from std_srvs.srv import Trigger, TriggerResponse, TriggerRequest
-from rcomponent.rcomponent import *
-
+from dt50_2_driver.srv import GetDistance, GetDistanceResponse
 
 class DT502Driver(RComponent):
 
@@ -58,7 +55,7 @@ class DT502Driver(RComponent):
 
         RComponent.ros_setup(self)
 
-        self.read_distance_service = rospy.Service('~read_distance', Trigger, self.read_distance_service_cb)
+        self.read_distance_service = rospy.Service('~read_distance', GetDistance, self.read_distance_service_cb)
         self.read_distance_service = rospy.Service('~start_communication', Trigger, self.start_communication_cb)
         self.read_distance_service = rospy.Service('~shutdown_communication', Trigger, self.shutdown_communication_cb)
         self.read_distance_service = rospy.Service('~turn_off_laser', Trigger, self.turn_off_laser_cb)
@@ -129,10 +126,12 @@ class DT502Driver(RComponent):
         self.turn_on_laser_cb(TriggerRequest())
         self.serial_device.flush()
         # Reads datas
-        accumulated_distance = 0.0
+        num_reads = self.reads_per_request
+        if msg.readings > 0:
+            num_reads = msg.readings
         measurements =[]
         rospy.loginfo("Reads distance from laser")
-        for x in range(0,self.reads_per_request):
+        for x in range(0,num_reads):
             self.write(self.requestMeasure_cmd)
             distance = self.read()
             #print(distance)
@@ -141,12 +140,18 @@ class DT502Driver(RComponent):
             rospy.loginfo("Distance read (in 1/10 mm): %.2f", measurements[x])
 
         average_distance = statistics.mean(measurements)
+        std_dev = statistics.stdev(measurements)
         print("Mean: %.4f" % average_distance)
-        print("Standard deviation: %.4f" % statistics.stdev(measurements))
+        print("Standard deviation: %.4f" % std_dev)
         
         self.turn_off_laser_cb(TriggerRequest())
 
-        return TriggerResponse()
+        response = GetDistanceResponse()
+        response.success = True
+        response.distance = average_distance
+        response.std_dev = std_dev
+        response.message = "Distance correctly read"
+        return 
 
     def shutdown_communication_cb(self, msg):
         self.serial_device.flush()

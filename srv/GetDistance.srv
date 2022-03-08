@@ -1,0 +1,6 @@
+int16 readings
+---
+bool success
+float32 distance
+float32 std_dev
+string message
