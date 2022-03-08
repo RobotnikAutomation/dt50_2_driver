@@ -1,0 +1,12 @@
+[Unit]
+Description=Initializes DT50_2 laser
+Requires=dbus.socket
+After=multi-user.target
+
+[Service]
+User=root
+RemainAfterExit=yes
+ExecStart=/home/robot/.ros/init_dt50_2.sh
+
+[Install]
+WantedBy=multi-user.target
