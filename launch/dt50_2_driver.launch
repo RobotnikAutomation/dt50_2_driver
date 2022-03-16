@@ -3,9 +3,16 @@
     <arg name="port" default="/dev/ttyUSB_DT50_2"/>
     <arg name="reads_per_request" default="10"/>
 
+
     <node type="driver_node.py" name="dt50_2_driver" pkg="dt50_2_driver" output="screen" respawn="true" respawn_delay="10">
         <param name="port" value="$(arg port)"/>
         <param name="reads_per_request" value="$(arg reads_per_request)"/>
         <param name="desired_freq" value="5"/>
     </node>
+
+    <node type="ur_server_node.py" name="dt50_2_server" pkg="dt50_2_driver" output="screen" respawn="true" respawn_delay="10">
+        <param name="ip_address" value="192.168.0.200"/>
+        <param name="port" value="5000"/>
+    </node>
+
 </launch>

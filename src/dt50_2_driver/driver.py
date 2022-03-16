@@ -151,7 +151,7 @@ class DT502Driver(RComponent):
         response.distance = average_distance
         response.std_dev = std_dev
         response.message = "Distance correctly read"
-        return 
+        return response
 
     def shutdown_communication_cb(self, msg):
         self.serial_device.flush()

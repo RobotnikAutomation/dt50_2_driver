@@ -47,6 +47,7 @@
   <exec_depend>rospy</exec_depend>
   <exec_depend>std_srvs</exec_depend>
   <exec_depend>rcomponent</exec_depend>
+  <exec_depend>xmlrpc_server</exec_depend>
 
 
   <!-- The export tag contains other, unspecified, tags -->

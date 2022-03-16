@@ -1,5 +1,5 @@
 #!/bin/bash
-sudo cp -v ../rules/dt50_2.rules /etc/udev/rules.d/
+sudo cp -v ../rules/60-dt50-r.rules /etc/udev/rules.d/
 
 cp -v init_dt50_2.sh $HOME/.ros/
 
