@@ -42,8 +42,19 @@ class URBridge(XMLRPCServer):
         data = self.read_data_service.call(GetDistanceRequest())
         f = open('/home/robot/test.csv', 'a+')
         writer = csv.writer(f)
-        writer.writerow([data.distance, data.std_dev])
+        writer.writerow([data.distance, data.std_dev, data.signal_level, data.sensor_temp])
         f.close()
-
+        f = open('/home/robot/test_quality.csv', 'a+')
+        writer = csv.writer(f)
+        writer.writerow(data.level)
+        f.close()
+        f = open('/home/robot/test_distances.csv', 'a+')
+        writer = csv.writer(f)
+        writer.writerow(data.dist)
+        f.close()
+        f = open('/home/robot/test_temperatures.csv', 'a+')
+        writer = csv.writer(f)
+        writer.writerow(data.temp)
+        f.close()
         return data.distance
 

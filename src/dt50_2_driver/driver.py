@@ -27,6 +27,7 @@ class DT502Driver(RComponent):
         self.turnOnLaser_cmd = bytes.fromhex('0a000203006100000101')
         self.turnOffLaser_cmd = bytes.fromhex('0a000203006100000100')
         self.requestMeasure_cmd = bytes.fromhex('08000202006d0000')
+        self.requestTemp_cmd = bytes.fromhex('0800020200990000')
 
         RComponent.__init__(self)
     
@@ -129,17 +130,34 @@ class DT502Driver(RComponent):
         num_reads = self.reads_per_request
         if msg.readings > 0:
             num_reads = msg.readings
-        measurements =[]
+        measurements = []
+        measured_quality = []
+        measured_temp = []
         rospy.loginfo("%s::read_distance_service_cb: Reads distance from laser", self._node_name)
         for x in range(0,num_reads):
             self.write(self.requestMeasure_cmd)
             distance = self.read()
             #print(distance)
+            quality=distance[16:20]
+            #print(quality)
             distance=distance[12:16]
+            #print(distance)
             measurements.append(float(int(distance,16))/10.0)
-            rospy.loginfo("%s::read_distance_service_cb: Distance read (in 1/10 mm): %.2f", self._node_name, measurements[x])
+            measured_quality.append(float(int(quality,16))/100.0)
+            self.write(self.requestTemp_cmd)
+            temperature = self.read()
+            #print(temperature)
+            temperature=temperature[12:14]
+            #print(temperature)
+            measured_temp.append(float(int(temperature,16)))
+            rospy.loginfo("%s::read_distance_service_cb: Distance read (in 1/10 mm): %.2f \t Quality: %.2f \t Temp: %.2f", self._node_name, measurements[x], measured_quality[x],measured_temp[x])
 
-        average_distance = statistics.mean(measurements)
+        #average_distance = statistics.mean(measurements)
+        #average_quality = statistics.mean(measured_quality)
+        #average_temperature = statistics.mean(measured_temp)
+        average_distance = statistics.median(measurements)
+        average_quality = statistics.median(measured_quality)
+        average_temperature = statistics.median(measured_temp)
         std_dev = statistics.stdev(measurements)
         rospy.loginfo("%s::read_distance_service_cb: Mean -> %.4f", self._node_name, average_distance)
         rospy.loginfo("%s::read_distance_service_cb: Standard deviation -> %.4f", self._node_name, std_dev)
@@ -148,8 +166,13 @@ class DT502Driver(RComponent):
 
         response = GetDistanceResponse()
         response.success = True
+        response.dist = measurements
+        response.level = measured_quality
+        response.temp = measured_temp
         response.distance = average_distance
         response.std_dev = std_dev
+        response.signal_level = average_quality
+        response.sensor_temp = average_temperature
         response.message = "Distance correctly read"
         return response
 

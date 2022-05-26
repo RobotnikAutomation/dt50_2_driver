@@ -1,6 +1,11 @@
 int16 readings
 ---
 bool success
+float32[] dist
+float32[] level
+float32[] temp
 float32 distance
 float32 std_dev
+float32 signal_level
+float32 sensor_temp
 string message

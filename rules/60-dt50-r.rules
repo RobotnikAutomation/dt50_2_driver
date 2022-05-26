@@ -1,1 +1,2 @@
 KERNEL=="ttyUSB[0-9]*", ATTRS{idProduct}=="0203", ATTRS{idVendor}=="2843", NAME="%k", SYMLINK="ttyUSB_DT50_2", GROUP="dialout"
+KERNEL=="ttyACM[0-9]*", ATTRS{idProduct}=="0203", ATTRS{idVendor}=="2843", NAME="%k", SYMLINK="ttyUSB_DT50_2", GROUP="dialout"
